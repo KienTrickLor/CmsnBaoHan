@@ -478,7 +478,7 @@ const CONFIG = {
   const burstField = makeField($("#fx"), { count: 0, min: 6, max: 11, alpha: 1, colors: ["#E9A9B4", "#F4C6D0", "#D77A99", "#F6B25E", "#C8567F"] });
 
   /* ---------- Âm nhạc & Đồng bộ thanh thời lượng ---------- */
-  let bgm = null, useSynth = !CONFIG.music, musicWanted = false, fadeT = 0;
+  let bgm = null, useSynth = !CONFIG.music, musicWanted = true, fadeT = 0; // musicWanted = true: nhạc mặc định BẬT
   let actx = null, masterGain = null, seqTimer = 0, noteIdx = 0;
   let synthElapsed = 0, synthTimer = 0;
   const SYNTH_TOTAL = 28;
@@ -665,6 +665,8 @@ const CONFIG = {
     }
   });
   setIcon();
+  /* Mặc định bật nhạc: thử phát ngay; nếu trình duyệt chặn tự phát thì nút "Mở món quà nhỏ" (begin) sẽ phát */
+  if (bgm) bgm.play().then(() => fade(0.75, 2000)).catch(() => {});
 
   /* ---------- Ngọn nến ---------- */
   let state = "dark", holding = false, p = 0, g = 0, gTarget = 1, ig = 0;
@@ -898,4 +900,14 @@ const CONFIG = {
   measure();
   introField.start();
   playIntro();
+})();
+
+/* ---------- Theo dõi quà: nạp tracking.css + tracking.js (không đụng code cũ) ---------- */
+(() => {
+  const css = document.createElement("link");
+  css.rel = "stylesheet"; css.href = "tracking.css";
+  document.head.appendChild(css);
+  const js = document.createElement("script");
+  js.src = "tracking.js"; js.defer = true;
+  document.body.appendChild(js);
 })();
