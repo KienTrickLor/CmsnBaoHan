@@ -1,4 +1,52 @@
-/* ===== Theo dõi quà: thẻ bản đồ tối + tuyến đường phát sáng ===== */
+/* ===== Nút "Nhận trái tim của anh" ===== */
+.trk-gate {
+  position: relative; z-index: 1; display: flex; justify-content: center;
+  margin: 2.2rem 0 .4rem;
+  opacity: 0; transform: translateY(14px);
+  transition: opacity .9s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1);
+}
+.trk-gate.in { opacity: 1; transform: none; }
+.trk-send {
+  display: inline-flex; align-items: center; gap: 10px;
+  font: 500 1rem/1 var(--sans, system-ui); color: var(--cream, #FFF5EE);
+  padding: 15px 28px; border-radius: 999px; border: 0; cursor: pointer;
+  background: linear-gradient(135deg, #D9638C, #A23463);
+  box-shadow: 0 10px 26px rgba(162,52,99,.35), 0 0 0 1px rgba(255,255,255,.25) inset;
+  animation: trkSendPulse 2.6s ease-in-out infinite;
+  transition: transform .2s ease, background .5s ease, color .5s ease, box-shadow .5s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.trk-send:active { transform: scale(.95); }
+.trk-send:focus-visible { outline: 2px solid #C8567F; outline-offset: 4px; }
+.trk-send-ico { display: inline-flex; transition: opacity .5s ease, transform .5s cubic-bezier(.2,1.4,.3,1); }
+.trk-send-ico svg { width: 20px; height: 20px; fill: currentColor; animation: trkBeat 1.5s ease-in-out infinite; }
+.trk-send-ico.gone { opacity: 0; transform: scale(.3); transition: none; }
+.trk-send.sent {
+  cursor: default; animation: none;
+  background: rgba(200,86,127,.10); color: var(--wine, #8E2A52);
+  box-shadow: inset 0 0 0 1px rgba(200,86,127,.35);
+}
+@keyframes trkSendPulse {
+  0%, 100% { box-shadow: 0 10px 26px rgba(162,52,99,.35), 0 0 0 0 rgba(217,99,140,.45), 0 0 0 1px rgba(255,255,255,.25) inset; }
+  50%      { box-shadow: 0 12px 30px rgba(162,52,99,.42), 0 0 0 11px rgba(217,99,140,0), 0 0 0 1px rgba(255,255,255,.25) inset; }
+}
+@keyframes trkBeat { 0%, 60%, 100% { transform: scale(1); } 15% { transform: scale(1.22); } 30% { transform: scale(.96); } 42% { transform: scale(1.14); } }
+
+/* trái tim bay lên rồi phóng đi + đuôi lấp lánh (gắn vào body) */
+.trk-fly {
+  position: fixed; z-index: 99999; width: 30px; height: 30px; pointer-events: none;
+  filter: drop-shadow(0 0 10px rgba(255,120,160,.8)) drop-shadow(0 4px 8px rgba(120,20,60,.35));
+  will-change: transform, opacity;
+}
+.trk-fly svg { width: 100%; height: 100%; display: block; }
+.trk-spark {
+  position: fixed; z-index: 99998; width: 12px; height: 11px; pointer-events: none;
+  background: #FF8FA8;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ===== Theo dõi trái tim: thẻ bản đồ tối + tuyến đường phát sáng ===== */
 .trk {
   position: relative; z-index: 1;
   margin: 2.4rem 0 1.6rem;
@@ -131,6 +179,9 @@
 .trk-ico svg { width: 22px; height: 22px; }
 
 .trk-txt { min-width: 0; flex: 1; }
+.trk-eta { margin: 7px 0 0; font: 400 .74rem/1.2 var(--sans, system-ui); color: rgba(246,200,211,.72); letter-spacing: .01em; }
+.trk-eta:empty { display: none; }
+.trk-arrived .trk-dots { display: none; }
 .trk-line { margin: 0; font: italic 400 1.08rem/1.3 var(--serif, Georgia, serif); color: var(--cream, #FFF5EE); }
 .trk-w {
   display: inline-block; opacity: 0; transform: translateY(.55em); filter: blur(3px);
@@ -167,4 +218,5 @@
 @media (prefers-reduced-motion: reduce) {
   .trk, .trk * { transition-duration: .01s !important; transition-delay: 0s !important; animation: none !important; }
   .trk-end-pin { opacity: 1; }
+  .trk-send, .trk-send-ico svg { animation: none !important; }
 }
