@@ -11,13 +11,13 @@
     text: "Trái tim đang đến",
     btnText: "Nhận trái tim của anh",          // chữ trên nút trước khi bấm
     doneText: "Trái tim đã đến nơi rồi",       // chữ khi đã đi hết quãng đường
-    from: [10.7769, 106.7009],                 // điểm xuất phát (TP.HCM)
-    via: [                                     // điểm trung gian, theo thứ tự
-      [10.95, 107.25], [10.93, 108.10], [12.24, 109.19], [13.78, 109.22],
-      [15.12, 108.80], [16.05, 108.22], [16.46, 107.59], [17.47, 106.62],
-      [18.68, 105.68], [19.81, 105.78], [20.43, 106.17]
+    from: [20.8449, 106.6881],                 // điểm xuất phát: Hải Phòng
+    via: [                                     // điểm trung gian dọc quốc lộ 1 rồi QL19 lên Tây Nguyên
+      [20.25, 105.97], [19.81, 105.78], [18.68, 105.68], [17.47, 106.62],
+      [16.46, 107.59], [16.05, 108.22], [15.12, 108.80], [14.65, 109.03],
+      [13.78, 109.22], [13.95, 108.90], [14.00, 108.65]
     ],
-    to: [20.8449, 106.6881],                   // điểm đến (Lê Chân, Hải Phòng)
+    to: [13.9833, 108.0022],                   // điểm đến: Pleiku, Gia Lai
     days: 4,                                   // trái tim đi hết quãng đường trong bao nhiêu ngày
     startAt: "",                               // mốc xuất phát cố định, vd "2026-11-17T09:00:00+07:00".
                                                // Để trống = tính từ lúc người ấy bấm nút (lưu trong máy họ)
@@ -256,7 +256,10 @@
       }).addTo(map);
       mk("trk-start", "<i></i>", [14, 14], [7, 7]);
       mk("trk-end", '<i class="trk-rip"></i><i class="trk-rip r2"></i>' + PIN, [46, 54], [23, 50]);
-      const pkg = mk("trk-pkg", '<span class="trk-halo"></span><span class="trk-core">' + GIFT + "</span>", [46, 46], [23, 23], 1000);
+      /* tim nhỏ bay ra từ trái tim chính, hướng về điểm đến */
+      const MINI = [[0, 52, 0, 1, -14], [0.55, 44, 10, 0.8, 12], [1.1, 58, -10, 0.9, -8], [1.65, 40, 6, 0.7, 16], [2.2, 50, -6, 0.85, -18]]
+        .map((m) => '<i class="trk-mini" style="--d:' + m[0] + "s;--far:" + m[1] + "px;--side:" + m[2] + "px;--sc:" + m[3] + ";--r:" + m[4] + 'deg"></i>').join("");
+      const pkg = mk("trk-pkg", '<span class="trk-halo"></span>' + MINI + '<span class="trk-core">' + GIFT + "</span>", [46, 46], [23, 23], 1000);
 
       const fit = () => {
         map.invalidateSize();
@@ -269,10 +272,25 @@
       let raf = 0, timer = 0, tick = 0, shown = false, arrived = false;
       const setSeg = (seg) => { glow1.setLatLngs(seg); glow2.setLatLngs(seg); main.setLatLngs(seg); };
 
+      /* hướng đang đi (theo màn hình) để tim nhỏ bay về phía điểm đến */
+      function aim(e) {
+        const el = pkg.getElement();
+        if (!el) return;
+        const a = map.latLngToLayerPoint(pts[e.idx]), b = map.latLngToLayerPoint(pts[Math.min(pts.length - 1, e.idx + 1)]);
+        let dx = b.x - a.x, dy = b.y - a.y;
+        const n = Math.hypot(dx, dy) || 1;
+        dx /= n; dy /= n;
+        el.style.setProperty("--dx", dx.toFixed(3));
+        el.style.setProperty("--dy", dy.toFixed(3));
+        el.style.setProperty("--px", (-dy).toFixed(3));
+        el.style.setProperty("--py", dx.toFixed(3));
+      }
+
       function place(p) {
         const e = at(TOTAL * p);
         setSeg(pts.slice(0, e.idx + 1).concat([e.pt]));
         pkg.setLatLng(e.pt);
+        aim(e);
         return e;
       }
 
@@ -300,6 +318,7 @@
           const e = at(target * ease(k));
           setSeg(pts.slice(0, e.idx + 1).concat([e.pt]));
           pkg.setLatLng(e.pt);
+          aim(e);
           if (k < 1) raf = requestAnimationFrame(step);
           else { refresh(); tick = setInterval(refresh, 20000); }
         })(t0);
@@ -321,6 +340,7 @@
         sec.classList.remove("in", "trk-live");
         setSeg([]);
         pkg.setLatLng(TRACK.from);
+        aim(at(0));
         void sec.offsetWidth;
         requestAnimationFrame(() => requestAnimationFrame(() => sec.classList.remove("trk-reset")));
       }

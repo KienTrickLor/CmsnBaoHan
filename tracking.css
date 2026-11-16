@@ -151,6 +151,29 @@
 }
 .trk-core svg { width: 18px; height: 18px; }
 
+/* tim nhỏ bay từ trái tim chính về phía điểm đến */
+.trk-mini {
+  position: absolute; left: 50%; top: 50%; width: 11px; height: 10px; z-index: 0;
+  pointer-events: none; opacity: 0; background: #FF9DB5;
+  filter: drop-shadow(0 0 4px rgba(255,140,170,.7));
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") center / contain no-repeat;
+  transform: translate(-50%, -50%) scale(.3);
+}
+.trk.trk-live .trk-mini { animation: trkMini 2.6s ease-out var(--d, 0s) infinite; }
+.trk-arrived .trk-mini { display: none; }
+@keyframes trkMini {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(.3); }
+  18%  { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%)
+      translate(calc(var(--dx, 0) * var(--far, 50px) + var(--px, 1) * var(--side, 0px)),
+                calc(var(--dy, 1) * var(--far, 50px) + var(--py, 0) * var(--side, 0px)))
+      scale(var(--sc, 1)) rotate(var(--r, 0deg));
+  }
+}
+
 /* thẻ thông tin phía dưới */
 .trk-info {
   position: absolute; z-index: 3; left: 12px; right: 12px; bottom: 22px;
