@@ -87,7 +87,23 @@
   transition: transform 2.8s cubic-bezier(.22,1,.36,1);
 }
 .trk.in .trk-map { transform: none; }
-.trk .trk-map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.5); }
+/* nhãn trên bản đồ: quần đảo, biển, điểm đi / điểm nhận */
+.trk-isl, .trk-lbl { pointer-events: none; opacity: 0; transition: opacity 1s ease 1.3s; }
+.trk.in .trk-isl, .trk.in .trk-lbl { opacity: 1; }
+.trk-isl {
+  font: italic 400 .7rem/16px var(--serif, Georgia, serif); color: rgba(246,200,211,.85);
+  text-align: center; white-space: nowrap; text-shadow: 0 1px 6px rgba(17,5,22,.9);
+}
+.trk-isl.trk-sea { font: 400 .56rem/16px var(--sans, system-ui); letter-spacing: .36em; text-transform: uppercase; color: rgba(246,200,211,.38); }
+.trk-lbl b {
+  display: block; font: italic 600 .92rem/1.15 var(--serif, Georgia, serif); color: var(--cream, #FFF5EE);
+  text-shadow: 0 1px 8px rgba(17,5,22,.95);
+}
+.trk-lbl small {
+  display: block; font: 500 .52rem/1.5 var(--sans, system-ui); letter-spacing: .16em;
+  text-transform: uppercase; color: var(--rose, #EC9FB0);
+}
+.trk-lbl.end { text-align: right; }
 .trk .leaflet-control-attribution {
   pointer-events: auto; z-index: 4;
   background: rgba(17,5,22,.55); color: rgba(246,200,211,.5);

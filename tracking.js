@@ -11,6 +11,8 @@
     text: "Trái tim đang đến",
     btnText: "Nhận trái tim của anh",          // chữ trên nút trước khi bấm
     doneText: "Trái tim đã đến nơi rồi",       // chữ khi đã đi hết quãng đường
+    fromName: "Hải Phòng",                     // tên hiện ở điểm đi
+    toName: "Gia Lai",                         // tên hiện ở điểm nhận
     from: [20.8449, 106.6881],                 // điểm xuất phát: Hải Phòng
     via: [                                     // điểm trung gian dọc quốc lộ 1 rồi QL19 lên Tây Nguyên
       [20.25, 105.97], [19.81, 105.78], [18.68, 105.68], [17.47, 106.62],
@@ -76,6 +78,88 @@
     return { idx: i - 1, pt: [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k] };
   }
   const ease = (k) => 0.5 - 0.5 * Math.cos(Math.PI * k);
+
+  /* ---------- Bản đồ Việt Nam vẽ tay: không cần tile, không cần API key ----------
+     Đường viền là bản gần đúng (vẽ từ toạ độ các mốc chính), đủ đẹp cho thẻ nhỏ.
+     Muốn sắc nét hơn thì thay VN_MAIN bằng toạ độ từ file GeoJSON thật.
+     Toạ độ [vĩ độ, kinh độ]. Vị trí các đảo nhỏ trong 2 quần đảo là minh hoạ. */
+  const VN_MAIN = [
+    /* biên giới phía Bắc (Trung Quốc), từ Tây sang Đông */
+    [22.40, 102.14], [22.78, 102.45], [22.45, 103.00], [22.52, 103.95], [22.85, 104.35],
+    [23.05, 104.80], [23.36, 105.32], [23.05, 105.80], [22.85, 106.30], [22.82, 106.75],
+    [22.45, 106.65], [22.18, 106.78], [21.97, 106.72], [21.95, 107.20], [21.58, 107.90],
+    /* bờ biển phía Đông, từ Bắc xuống Nam */
+    [21.50, 108.05], [21.38, 107.95], [21.20, 107.70], [21.05, 107.45], [20.95, 107.10],
+    [20.85, 106.90], [20.70, 106.85], [20.45, 106.75], [20.10, 106.55], [20.00, 106.30],
+    [19.80, 105.95], [19.30, 105.88], [18.70, 105.82], [18.40, 105.95], [17.95, 106.55],
+    [17.45, 106.78], [17.00, 107.25], [16.50, 107.75], [16.05, 108.35], [15.88, 108.45],
+    [15.40, 108.85], [15.10, 108.98], [14.65, 109.15], [14.20, 109.15], [13.78, 109.32],
+    [13.20, 109.40], [12.85, 109.45], [12.40, 109.28], [11.90, 109.25], [11.50, 109.10],
+    [11.35, 109.06], [11.05, 108.55], [10.95, 108.15], [10.60, 107.55], [10.40, 107.10],
+    [10.38, 107.00], [10.30, 106.80], [10.00, 106.80], [9.60, 106.65], [9.30, 106.20],
+    [9.10, 105.85], [9.05, 105.50], [8.60, 104.85],
+    /* bờ biển phía Tây (vịnh Thái Lan) */
+    [8.75, 104.80], [9.55, 104.80], [10.00, 105.05], [10.20, 104.85], [10.35, 104.50],
+    /* biên giới Campuchia, từ Nam lên Bắc */
+    [10.52, 104.45], [10.60, 104.90], [10.85, 105.15], [10.90, 105.55], [11.10, 105.95],
+    [11.55, 106.20], [11.75, 106.55], [12.00, 106.90], [12.20, 107.20], [12.55, 107.50],
+    [13.00, 107.45], [13.45, 107.50], [14.00, 107.55], [14.50, 107.55], [14.70, 107.60],
+    /* biên giới Lào, từ Nam lên Bắc */
+    [15.10, 107.45], [15.55, 107.20], [16.10, 107.15], [16.35, 106.90], [16.65, 106.60],
+    [17.30, 106.10], [17.75, 105.80], [18.20, 105.35], [18.40, 105.15], [18.75, 105.00],
+    [19.05, 104.55], [19.45, 104.12], [19.90, 104.40], [20.40, 104.30], [20.75, 104.00],
+    [21.10, 103.70], [21.45, 103.10], [21.80, 102.65], [22.10, 102.20]
+  ];
+  const VN_ISLANDS = [
+    [[10.37, 103.95], [10.30, 104.02], [10.12, 104.05], [9.95, 104.03], [9.90, 103.95], [10.05, 103.88], [10.25, 103.85]], /* Phú Quốc */
+    [[8.78, 106.57], [8.72, 106.68], [8.65, 106.62], [8.70, 106.56]],                                                      /* Côn Đảo */
+    [[20.85, 106.97], [20.82, 107.08], [20.74, 107.02], [20.78, 106.95]]                                                   /* Cát Bà */
+  ];
+  /* đảo nhỏ: Bạch Long Vĩ, Cô Tô, Cồn Cỏ, Cù Lao Chàm, Lý Sơn, Phú Quý, Thổ Chu,
+     Song Tử Tây, Sinh Tồn, Trường Sa Lớn, Phú Lâm, Hoàng Sa */
+  const VN_DOTS = [
+    [20.13, 107.72], [21.00, 107.77], [17.16, 107.34], [15.95, 108.52], [15.38, 109.12], [10.52, 108.93],
+    [9.28, 103.47], [11.43, 114.33], [9.88, 114.33], [8.64, 111.92], [16.83, 112.33], [16.53, 111.60]
+  ];
+
+  function rng(seed) {
+    return () => {
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function scatter(box, n, seed) {          // box = [vĩ min, vĩ max, kinh min, kinh max]
+    const r = rng(seed), out = [];
+    for (let i = 0; i < n; i++) out.push([box[0] + r() * (box[1] - box[0]), box[2] + r() * (box[3] - box[2])]);
+    return out;
+  }
+
+  function drawVietnam(L, map) {
+    const grid = { color: "#F6C8D3", weight: 1, opacity: 0.06, interactive: false };
+    for (let la = 8; la <= 24; la += 2) L.polyline([[la, 100], [la, 118]], grid).addTo(map);
+    for (let lo = 102; lo <= 116; lo += 2) L.polyline([[5, lo], [25, lo]], grid).addTo(map);
+
+    const land = { color: "#F6C8D3", weight: 1.3, opacity: 0.8, fillColor: "#5A2A5E", fillOpacity: 0.6, lineJoin: "round", interactive: false };
+    L.polygon(VN_MAIN, { color: "#EC9FB0", weight: 10, opacity: 0.1, fill: false, lineJoin: "round", interactive: false }).addTo(map);
+    L.polygon(VN_MAIN, land).addTo(map);
+    VN_ISLANDS.forEach((p) => L.polygon(p, land).addTo(map));
+
+    const dot = { radius: 1.8, color: "#F6C8D3", weight: 0, fillColor: "#F6C8D3", fillOpacity: 0.85, interactive: false };
+    VN_DOTS.forEach((p) => L.circleMarker(p, Object.assign({}, dot, { radius: 2.6 })).addTo(map));
+    scatter([15.75, 17.15, 111.2, 112.75], 14, 7)           /* Hoàng Sa */
+      .concat(scatter([7.5, 11.6, 111.7, 114.6], 34, 11))   /* Trường Sa */
+      .forEach((p) => L.circleMarker(p, dot).addTo(map));
+
+    const lbl = (cls, t, ll) => L.marker(ll, {
+      icon: L.divIcon({ className: cls, html: t, iconSize: [140, 16], iconAnchor: [70, 8] }),
+      interactive: false, keyboard: false
+    }).addTo(map);
+    lbl("trk-isl", "Quần đảo Hoàng Sa", [17.65, 111.95]);
+    lbl("trk-isl", "Quần đảo Trường Sa", [12.15, 113.15]);
+    lbl("trk-isl trk-sea", "Biển Đông", [14.1, 113.4]);
+  }
 
   /* ---------- Nạp Leaflet rồi dựng thẻ ---------- */
   function loadLeaflet(done) {
@@ -237,12 +321,9 @@
       const map = L.map(sec.querySelector(".trk-map"), {
         zoomControl: false, dragging: false, touchZoom: false, doubleClickZoom: false,
         scrollWheelZoom: false, boxZoom: false, keyboard: false, tap: false,
-        zoomSnap: 0, zoomAnimation: false, inertia: false
+        zoomSnap: 0, zoomAnimation: false, inertia: false, attributionControl: false
       });
-      map.attributionControl.setPrefix(false);
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19, attribution: "© OpenStreetMap"
-      }).addTo(map);
+      drawVietnam(L, map);   // nền bản đồ Việt Nam tự vẽ, vẽ trước để tuyến đường nằm đè lên
 
       const line = (o) => L.polyline([], Object.assign({ lineCap: "round", lineJoin: "round", interactive: false }, o)).addTo(map);
       L.polyline(pts, { color: "#D4B5C5", weight: 2, opacity: 0.55, dashArray: "1 7", lineCap: "round", className: "trk-ghost", interactive: false }).addTo(map);
@@ -256,14 +337,22 @@
       }).addTo(map);
       mk("trk-start", "<i></i>", [14, 14], [7, 7]);
       mk("trk-end", '<i class="trk-rip"></i><i class="trk-rip r2"></i>' + PIN, [46, 54], [23, 50]);
+      /* nhãn điểm đi / điểm nhận */
+      const tag = (cls, html, ll, anc) => L.marker(ll, {
+        icon: L.divIcon({ className: cls, html, iconSize: [110, 34], iconAnchor: anc }),
+        interactive: false, keyboard: false
+      }).addTo(map);
+      tag("trk-lbl", "<b>" + TRACK.fromName + "</b><small>Điểm đi</small>", TRACK.from, [-14, 17]);
+      tag("trk-lbl end", "<b>" + TRACK.toName + "</b><small>Điểm nhận</small>", TRACK.to, [124, 43]);
       /* tim nhỏ bay ra từ trái tim chính, hướng về điểm đến */
       const MINI = [[0, 52, 0, 1, -14], [0.55, 44, 10, 0.8, 12], [1.1, 58, -10, 0.9, -8], [1.65, 40, 6, 0.7, 16], [2.2, 50, -6, 0.85, -18]]
         .map((m) => '<i class="trk-mini" style="--d:' + m[0] + "s;--far:" + m[1] + "px;--side:" + m[2] + "px;--sc:" + m[3] + ";--r:" + m[4] + 'deg"></i>').join("");
       const pkg = mk("trk-pkg", '<span class="trk-halo"></span>' + MINI + '<span class="trk-core">' + GIFT + "</span>", [46, 46], [23, 23], 1000);
 
+      const VIEW = L.latLngBounds([[7.0, 102.0], [23.6, 115.4]]);   // khung nhìn trọn nước Việt Nam + 2 quần đảo
       const fit = () => {
         map.invalidateSize();
-        map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [34, 76], paddingBottomRight: [34, 118], animate: false });
+        map.fitBounds(VIEW, { paddingTopLeft: [12, 16], paddingBottomRight: [12, 112], animate: false });
       };
       fit();
       addEventListener("resize", fit);
