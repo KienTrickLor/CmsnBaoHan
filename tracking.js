@@ -240,8 +240,8 @@
         zoomSnap: 0, zoomAnimation: false, inertia: false
       });
       map.attributionControl.setPrefix(false);
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png", {
-        subdomains: "abcd", maxZoom: 19, attribution: "© OpenStreetMap · © CARTO"
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19, attribution: "© OpenStreetMap"
       }).addTo(map);
 
       const line = (o) => L.polyline([], Object.assign({ lineCap: "round", lineJoin: "round", interactive: false }, o)).addTo(map);

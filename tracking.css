@@ -87,7 +87,7 @@
   transition: transform 2.8s cubic-bezier(.22,1,.36,1);
 }
 .trk.in .trk-map { transform: none; }
-.trk .trk-map .leaflet-tile-pane { filter: brightness(1.45) contrast(1.05) saturate(.75) hue-rotate(-12deg); }
+.trk .trk-map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.5); }
 .trk .leaflet-control-attribution {
   pointer-events: auto; z-index: 4;
   background: rgba(17,5,22,.55); color: rgba(246,200,211,.5);
