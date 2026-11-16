@@ -15,11 +15,11 @@ const CONFIG = {
   ],
   // Ảnh để cạnh file này, ví dụ: [{ src: "anh1.jpg", caption: "Đà Lạt, 2025" }]
   photos: [],
-  // Nhạc đã được nhúng sẵn bài "Lễ Đường - Kai Đinh" ngay trong file này (up thẳng 1 file lên GitHub là chạy luôn)
-  songTitle: "Lễ Đường",
-  songArtist: "Kai Đinh",
-  songCover: "le_duong_cover.jpg",
-  music: "le_duong.mp3",
+  // Nhạc: bài "Anh vẫn ở đây" (tên file để không dấu, không khoảng trắng cho chắc ăn)
+  songTitle: "Anh Vẫn Ở Đây",
+  songArtist: "Quang Đăng Trần x ViAM",
+  songCover: "anh_van_o_day_cover.jpg",
+  music: "anh_van_o_day.mp3",
   musicStart: 0               // bắt đầu bài mp3 từ giây thứ mấy
 };
 /* ============================================================ */
@@ -258,7 +258,6 @@ const CONFIG = {
       out += '<g transform="translate(' + f.x0 + " " + base + ')"><g class="sway" style="--sdur:' + sdur + ';--sw:-' + (i * 0.75).toFixed(1) + 's">' + g + "</g></g>";
     });
 
-    // 3 chú bướm bay lượn quanh vườn hoa
     out += '<g class="butterfly" data-bfly="0" style="--bd:1.6s" transform="translate(82 54)">' +
       butterflyGraphic("#F4AFC0", "#D95B82", "#8C254F", 1.02) + '</g>';
     out += '<g class="butterfly" data-bfly="1" style="--bd:1.9s" transform="translate(288 52)">' +
@@ -281,7 +280,6 @@ const CONFIG = {
   ]);
   const bflyNodes = [0, 1, 2].map((i) => gardenEl.querySelector('[data-bfly="' + i + '"]'));
 
-  /* Quỹ đạo bay tự nhiên của 3 chú bướm + gió uốn cành hoa */
   const BFLY_PATHS = [
     { cx: 135, cy: 62, rx: 92, ry: 32, fx: 0.52, fy: 0.94, ph: 0.2, perchX: 190, perchY: 36 },
     { cx: 248, cy: 68, rx: 86, ry: 30, fx: 0.46, fy: 0.88, ph: 2.4, perchX: 102, perchY: 58 },
@@ -294,7 +292,6 @@ const CONFIG = {
     if (!bloomed || reduce) { gardenRaf = 0; return; }
     const elapsed = (now - gardenStart) / 1000;
 
-    // 1. Gió lướt qua làm thân cây & bông hoa uốn cong mềm mại
     for (let i = 0; i < GARDEN.length; i++) {
       const f = GARDEN[i];
       const wave = Math.sin(elapsed * 1.55 - f.x0 * 0.018) * 6.2 + Math.sin(elapsed * 2.85 - i * 0.7) * 2.4;
@@ -323,13 +320,11 @@ const CONFIG = {
       }
     }
 
-    // 2. Bướm bay lượn vòng số 8, nghiêng mình theo hướng gió và ghé thăm hoa
     for (let b = 0; b < bflyNodes.length; b++) {
       const node = bflyNodes[b];
       if (!node) continue;
       const cfg = BFLY_PATHS[b];
       const tb = elapsed + cfg.ph;
-      // Chu kỳ 11 giây: ~8 giây bay lượn khắp vườn, ~3 giây đậu nhẹ lơ lửng gần nhụy hoa
       const cycle = tb % 11;
       const hoverBlend = cycle > 8 ? Math.sin(((cycle - 8) / 3) * Math.PI) * 0.78 : 0;
 
@@ -477,8 +472,8 @@ const CONFIG = {
   const letterField = makeField($("#petalsLetter"), { count: 18, min: 6, max: 11, alpha: 0.82, sparkRatio: 0.2, colors: ["#E9A9B4", "#F4C6D0", "#D98FA6"] });
   const burstField = makeField($("#fx"), { count: 0, min: 6, max: 11, alpha: 1, colors: ["#E9A9B4", "#F4C6D0", "#D77A99", "#F6B25E", "#C8567F"] });
 
-  /* ---------- Âm nhạc & Đồng bộ thanh thời lượng ---------- */
-  let bgm = null, useSynth = !CONFIG.music, musicWanted = true, fadeT = 0; // musicWanted = true: nhạc mặc định BẬT
+  /* ---------- Âm nhạc & Tự động bật ngay khi mở hoặc chạm bất kỳ đâu ---------- */
+  let bgm = null, useSynth = !CONFIG.music, musicWanted = false, userMuted = false, fadeT = 0;
   let actx = null, masterGain = null, seqTimer = 0, noteIdx = 0;
   let synthElapsed = 0, synthTimer = 0;
   const SYNTH_TOTAL = 28;
@@ -498,7 +493,7 @@ const CONFIG = {
   }
 
   function updatePlayerUI(cur, dur) {
-    const total = dur > 0 && isFinite(dur) ? dur : 249.3;
+    const total = dur > 0 && isFinite(dur) ? dur : 274.1;
     const now = Math.min(total, Math.max(0, cur || 0));
     const pct = Math.min(100, Math.max(0, (now / total) * 100));
     if (playerFill) playerFill.style.width = pct.toFixed(2) + "%";
@@ -616,10 +611,23 @@ const CONFIG = {
     }, 50);
   }
 
-  function playMusic() {
+  function startSynthFallback() {
+    useSynth = true;
+    ensureAudioCtx();
+    musicWanted = true;
+    setIcon();
+    clearTimeout(seqTimer);
+    stepMusicBox();
+    startSynthTicker();
+  }
+
+  let starting = false;
+  function playMusic(fromGesture) {
+    if (musicWanted || starting) return;
     if (useSynth || !bgm) {
+      const ctx = ensureAudioCtx();
+      if (!ctx || (ctx.state === "suspended" && !fromGesture)) return;
       useSynth = true;
-      ensureAudioCtx();
       musicWanted = true;
       setIcon();
       clearTimeout(seqTimer);
@@ -627,18 +635,24 @@ const CONFIG = {
       startSynthTicker();
       return;
     }
-    bgm.play().then(() => {
+    starting = true;
+    clearInterval(fadeT);
+    try { bgm.volume = 0; } catch (e) {}
+    let pr;
+    try { pr = bgm.play(); } catch (e) { pr = Promise.reject(e); }
+    Promise.resolve(pr).then(() => {
+      starting = false;
+      if (userMuted) { bgm.pause(); return; }
       musicWanted = true;
       setIcon();
-      fade(0.75, 2000);
-    }).catch(() => {
-      useSynth = true;
-      ensureAudioCtx();
-      musicWanted = true;
-      setIcon();
-      clearTimeout(seqTimer);
-      stepMusicBox();
-      startSynthTicker();
+      fade(0.75, 1800);
+    }).catch((err) => {
+      starting = false;
+      // Trình duyệt chặn tự phát (NotAllowedError): KHÔNG chuyển sang nhạc synth,
+      // chỉ đợi lần chạm/bấm tiếp theo rồi thử lại bài mp3.
+      if (err && (err.name === "NotAllowedError" || err.name === "AbortError")) return;
+      // Chỉ khi file mp3 thật sự lỗi/không đọc được mới dùng nhạc dự phòng
+      if (fromGesture && (!bgm || bgm.error || (err && err.name === "NotSupportedError"))) startSynthFallback();
     });
   }
 
@@ -650,9 +664,26 @@ const CONFIG = {
     if (bgm) fade(0, 350, () => { if (bgm) bgm.pause(); });
   }
 
-  musicBtn.addEventListener("click", () => {
-    if (musicWanted) stopMusic();
-    else playMusic();
+  musicBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (musicWanted) {
+      userMuted = true;
+      stopMusic();
+    } else {
+      userMuted = false;
+      playMusic(true);
+    }
+  });
+
+  /* Bắt lần chạm/bấm đầu tiên để bật nhạc. Chú ý: chỉ pointerup/touchend/click mới được trình duyệt
+     di động tính là "người dùng đã tương tác"; pointerdown/touchstart thì KHÔNG. */
+  function unlockAudioOnGesture(e) {
+    if (userMuted || musicWanted) return;
+    if (e && e.target && e.target.closest && e.target.closest("#music")) return;
+    playMusic(true);
+  }
+  ["pointerup", "touchend", "click", "keydown"].forEach((ev) => {
+    document.addEventListener(ev, unlockAudioOnGesture, { passive: true, capture: true });
   });
 
   document.addEventListener("visibilitychange", () => {
@@ -665,8 +696,8 @@ const CONFIG = {
     }
   });
   setIcon();
-  /* Mặc định bật nhạc: thử phát ngay; nếu trình duyệt chặn tự phát thì nút "Mở món quà nhỏ" (begin) sẽ phát */
-  if (bgm) bgm.play().then(() => fade(0.75, 2000)).catch(() => {});
+  // Thử bật tự động ngay khi tải trang (nếu trình duyệt cho phép)
+  playMusic(false);
 
   /* ---------- Ngọn nến ---------- */
   let state = "dark", holding = false, p = 0, g = 0, gTarget = 1, ig = 0;
@@ -807,6 +838,7 @@ const CONFIG = {
         scrollToEl(musicShowcase);
       }
     }
+    if (window._revealTrackGate) window._revealTrackGate();
     await sleep(350);
     if (id !== run) return;
     replayBtn.classList.add("in");
@@ -814,7 +846,7 @@ const CONFIG = {
   }
 
   letter.addEventListener("click", (e) => {
-    if (e.target.closest("#replay")) return;
+    if (e.target.closest("#replay") || e.target.closest(".trk-gate") || e.target.closest(".trk")) return;
     if (playing) skip();
   });
   ["wheel", "touchmove"].forEach((ev) => letter.addEventListener(ev, () => { userScrolled = true; }, { passive: true }));
@@ -876,7 +908,7 @@ const CONFIG = {
   function begin() {
     if (began) return;
     began = true;
-    playMusic();
+    if (!userMuted) playMusic(true);
     intro.classList.add("leaving");
     setTimeout(lightUp, reduce ? 100 : 760);
     setTimeout(() => { intro.style.visibility = "hidden"; introField.stop(); }, 1200);
@@ -900,14 +932,4 @@ const CONFIG = {
   measure();
   introField.start();
   playIntro();
-})();
-
-/* ---------- Theo dõi quà: nạp tracking.css + tracking.js (không đụng code cũ) ---------- */
-(() => {
-  const css = document.createElement("link");
-  css.rel = "stylesheet"; css.href = "tracking.css";
-  document.head.appendChild(css);
-  const js = document.createElement("script");
-  js.src = "tracking.js"; js.defer = true;
-  document.body.appendChild(js);
 })();

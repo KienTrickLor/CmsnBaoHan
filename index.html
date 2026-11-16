@@ -7,8 +7,11 @@
 <title>Chúc mừng sinh nhật</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="tracking.css">
 </head>
 <body>
 
@@ -208,7 +211,7 @@
   </div>
 </section>
 
-<!-- Cảnh 2: Bức thư, Vườn hoa & Trình phát nhạc kèm Sticker Mèo bắn tim -->
+<!-- Cảnh 2: Bức thư, Vườn hoa, Trình phát nhạc & Theo dõi Trái Tim Hải Phòng -> Gia Lai -->
 <main class="letter-scene" id="letter" inert aria-hidden="true">
   <canvas class="petals-bg" id="petalsLetter" aria-hidden="true"></canvas>
   <div class="sheet">
@@ -230,11 +233,10 @@
       <!-- Khung chạy nhạc + 2 Sticker Mèo Bắn Tim hiện ra sau khi lời nhắn chạy xong -->
       <section class="music-showcase" id="musicShowcase" aria-label="Trình phát nhạc kỷ niệm">
         <div class="stickers-stage" aria-hidden="true">
-          <!-- Sticker 1: Mèo Xám (Goma) ôm giỏ tim bắn sang phải (giống hệt mẫu ảnh) -->
+          <!-- Sticker 1: Mèo Xám (Goma) ôm giỏ tim bắn sang phải -->
           <svg class="cat-sticker left" viewBox="0 0 110 105">
             <g class="cat-bounce">
               <ellipse cx="52" cy="96" rx="32" ry="5" fill="rgba(90,26,52,.12)"/>
-              <!-- Đôi tai -->
               <g class="cat-ear-l">
                 <path d="M26 42 C16 26 22 16 38 26 Z" fill="#A69B97" stroke="#4A3531" stroke-width="2.8" stroke-linejoin="round"/>
                 <path d="M26 38 C21 28 25 22 34 28 Z" fill="#F4979C"/>
@@ -243,41 +245,32 @@
                 <path d="M78 40 C88 24 82 14 66 25 Z" fill="#A69B97" stroke="#4A3531" stroke-width="2.8" stroke-linejoin="round"/>
                 <path d="M76 36 C82 27 79 21 70 27 Z" fill="#F4979C"/>
               </g>
-              <!-- Đầu & Thân mèo xám -->
               <path d="M24 62 C16 40 28 22 52 22 C76 22 88 40 80 62 C83 75 80 92 70 95 L34 95 C24 92 21 75 24 62 Z" fill="#A69B97" stroke="#4A3531" stroke-width="2.8" stroke-linejoin="round"/>
-              <!-- Má hồng -->
               <ellipse cx="33" cy="54" rx="5.8" ry="3.4" fill="#F58B94" opacity=".88"/>
               <ellipse cx="71" cy="54" rx="5.8" ry="3.4" fill="#F58B94" opacity=".88"/>
-              <!-- Đôi mắt tròn -->
               <circle class="cat-eye" cx="41" cy="49" r="3.4" fill="#4A3531"/>
               <circle class="cat-eye" cx="63" cy="49" r="3.4" fill="#4A3531"/>
-              <!-- Miệng cười há nhỏ đáng yêu -->
               <path d="M48 53 Q52 50 56 53 Q55 61 52 61 Q49 61 48 53 Z" fill="#F48B94" stroke="#4A3531" stroke-width="2.1" stroke-linejoin="round"/>
               <path d="M46 52 Q52 55 58 52" fill="none" stroke="#4A3531" stroke-width="2.2" stroke-linecap="round"/>
 
-              <!-- Giỏ trái tim đầy ắp bên trái -->
               <g class="basket-hearts">
                 <path d="M18 76 C12 70 22 63 26 70 C30 63 40 70 34 76 L26 83 Z" fill="#F25764" stroke="#4A3531" stroke-width="2"/>
                 <path d="M28 73 C23 67 32 60 36 67 C40 60 49 67 44 73 L36 80 Z" fill="#FF6B78" stroke="#4A3531" stroke-width="2"/>
                 <path d="M10 80 C5 74 14 68 18 74 C22 68 31 74 26 80 L18 86 Z" fill="#FF7582" stroke="#4A3531" stroke-width="2"/>
                 <path d="M22 80 C17 74 26 68 30 74 C34 68 43 74 38 80 L30 86 Z" fill="#F25764" stroke="#4A3531" stroke-width="2"/>
               </g>
-              <!-- Thân giỏ mây -->
               <path d="M10 80 L44 80 L40 96 C39 98 15 98 14 96 Z" fill="#FCD692" stroke="#4A3531" stroke-width="2.4" stroke-linejoin="round"/>
               <rect x="8" y="77" width="38" height="5" rx="2.5" fill="#FFE3AD" stroke="#4A3531" stroke-width="2.3"/>
               <path d="M24 85 L34 93 M30 84 L38 90 M26 91 L34 84" stroke="#D9A75C" stroke-width="1.6" stroke-linecap="round"/>
 
-              <!-- Tay vẫy ném tim -->
               <g class="cat-arm-throw">
                 <path d="M62 72 C72 68 82 58 84 49 C85 45 79 44 76 48 C72 54 66 60 58 63" fill="#A69B97" stroke="#4A3531" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-                <!-- Đôi tim cầm trên tay -->
                 <path d="M75 42 C70 36 78 29 83 35 C88 29 96 36 91 42 L83 50 Z" fill="#FF5C6C" stroke="#4A3531" stroke-width="2"/>
                 <path d="M81 51 C76 45 84 39 89 44 C94 39 101 45 96 51 L89 58 Z" fill="#FF7582" stroke="#4A3531" stroke-width="2"/>
               </g>
             </g>
           </svg>
 
-          <!-- Cầu tim bay lơ lửng như ảnh GIF giữa 2 mèo -->
           <div class="heart-bridge">
             <svg class="flying-heart from-left h1" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             <svg class="flying-heart from-left h2" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
@@ -328,11 +321,11 @@
           </svg>
         </div>
 
-        <!-- Khung máy phát nhạc tượng trưng (chạy tự động theo thời lượng bài hát, không bấm được) -->
+        <!-- Khung máy phát nhạc tượng trưng -->
         <div class="player-card" id="playerCard">
           <div class="player-top">
             <div class="vinyl-wrap" id="vinylDisc">
-              <img id="playerCover" src="le_duong_cover.jpg" alt="Bìa đĩa nhạc">
+              <img id="playerCover" src="anh_van_o_day_cover.jpg" alt="Bìa đĩa nhạc">
               <span class="vinyl-hole"></span>
             </div>
             <div class="track-meta">
@@ -340,8 +333,8 @@
                 <span class="track-badge-dot"></span>
                 <span> giai điệu dành riêng cho em</span>
               </div>
-              <p class="track-title" id="playerTitle">Lễ Đường</p>
-              <p class="track-artist" id="playerArtist">Kai Đinh</p>
+              <p class="track-title" id="playerTitle">Anh Vẫn Ở Đây</p>
+              <p class="track-artist" id="playerArtist">Quang Đăng Trần x ViAM</p>
             </div>
             <div class="track-heart" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
@@ -356,7 +349,7 @@
             </div>
             <div class="player-times">
               <span id="playerCur">0:00</span>
-              <span id="playerDur">4:09</span>
+              <span id="playerDur">4:34</span>
             </div>
           </div>
 
@@ -392,5 +385,6 @@
 </main>
 
 <script src="script.js"></script>
+<script src="tracking.js"></script>
 </body>
 </html>
